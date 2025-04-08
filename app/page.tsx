@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
+import "@/styles/syntax-highlighter.css"
 
 // Custom hook for debouncing values
 function useDebounce<T>(value: T, delay: number): T {
@@ -126,6 +127,11 @@ export default function MarkdownViewer() {
                             style={theme === "dark" ? vscDarkPlus : vs}
                             language={match[1]}
                             PreTag="div"
+                            customStyle={{
+                              backgroundColor: 'var(--syntax-bg)',
+                              margin: 0,
+                              padding: '1rem',
+                            }}
                             {...props}
                           >
                             {String(children).replace(/\n$/, "")}
@@ -173,6 +179,11 @@ export default function MarkdownViewer() {
                             style={theme === "dark" ? (vscDarkPlus as any) : (vs as any)}
                             language={match[1]}
                             PreTag="div"
+                            customStyle={{
+                              backgroundColor: 'var(--syntax-bg)',
+                              margin: 0,
+                              padding: '1rem',
+                            }}
                             {...props}
                           >
                             {String(children).replace(/\n$/, "")}

@@ -1,0 +1,14 @@
+/* Light mode */
+:root {
+  --syntax-bg: white;
+}
+
+/* Dark mode */
+.dark {
+  --syntax-bg: black;
+}
+
+/* Override syntax highlighter background */
+pre {
+  background-color: var(--syntax-bg) !important;
+}

@@ -1,5 +1,6 @@
 import type React from "react"
 import "./globals.css"
+import "@/styles/syntax-highlighter.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -27,6 +28,5 @@ export default function RootLayout({
     </html>
   )
 }
-
 
 import './globals.css'
