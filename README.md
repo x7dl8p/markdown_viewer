@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-This project is a feature-rich Markdown Viewer with the following capabilities:
+This project is a open source feature-rich Markdown Viewer.
 
 ## Images
 ![Screenshot from 2025-04-09 11-18-58](https://github.com/user-attachments/assets/2abeb15e-28c2-4e2a-8651-50b0e9331711)
@@ -13,4 +13,34 @@ This project is a feature-rich Markdown Viewer with the following capabilities:
 - **Syntax Highlighting** for code blocks
 - **Dark Mode** support
 
-Enjoy the new markdown experience!
+
+### Project setup guide for begginers.
+
+1. Clone the repository
+```bash
+git clone https://github.com/x7dl8p/markdown_viewer.git
+cd markdown_viewer
+```
+
+2. Install dependencies
+```bash
+npm i
+```
+
+3. Run the development Server.
+```bash
+npm run dev
+```
+
+
+4. Run the build command.
+```bash
+npm run build
+```
+
+5. Start the server.
+```bash
+npm start
+```
+
+Enjoy the new markdown experience :)
