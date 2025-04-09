@@ -11,6 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { cn } from "@/lib/utils"
 import "@/styles/syntax-highlighter.css"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import html2pdf from 'html2pdf.js'
+import { DEFAULT_MARKDOWN } from "../components/defaultMarkdown";
 
 // Custom hook for debouncing values
 function useDebounce<T>(value: T, delay: number): T {
@@ -29,8 +37,6 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue
 }
 
-import { DEFAULT_MARKDOWN } from "../components/defaultMarkdown";
-
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN)
   const debouncedMarkdown = useDebounce(markdown, 300)
@@ -44,12 +50,87 @@ export default function MarkdownViewer() {
     setMounted(true)
   }, [])
 
-  const handleExport = () => {
-    const blob = new Blob([markdown], { type: "text/markdown" })
-    const url = URL.createObjectURL(blob)
+  const handleExport = (format: 'md' | 'html' | 'pdf') => {
+    switch (format) {
+      case 'md':
+        // Export as markdown (existing functionality)
+        const mdBlob = new Blob([markdown], { type: "text/markdown" })
+        const mdUrl = URL.createObjectURL(mdBlob)
+        downloadFile(mdUrl, "document.md")
+        break
+        
+      case 'html':
+        // Export as HTML
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Exported Markdown</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #000; background-color: #fff; }
+              pre { background-color: #f5f5f5; padding: 16px; border-radius: 4px; overflow-x: auto; }
+              code { font-family: monospace; }
+              img { max-width: 100%; }
+              a { color: #0066cc; }
+              blockquote { border-left: 4px solid #ddd; padding-left: 1rem; margin-left: 0; color: #444; }
+            </style>
+          </head>
+          <body>
+            ${document.querySelector('.prose')?.innerHTML || ''}
+          </body>
+          </html>
+        `
+        const htmlBlob = new Blob([htmlContent], { type: "text/html" })
+        const htmlUrl = URL.createObjectURL(htmlBlob)
+        downloadFile(htmlUrl, "document.html")
+        break
+        
+      case 'pdf':
+        const element = document.querySelector('.prose')
+        if (element) {
+          const clonedElement = element.cloneNode(true) as HTMLElement
+          const tempContainer = document.createElement('div')
+          tempContainer.appendChild(clonedElement)
+          
+          tempContainer.style.color = '#000'
+          tempContainer.style.backgroundColor = '#fff'
+          const textElements = tempContainer.querySelectorAll('*')
+          textElements.forEach(el => {
+            if (el instanceof HTMLElement) {
+              el.style.color = '#000'
+              if (el.tagName === 'CODE' || el.tagName === 'PRE') {
+                el.style.backgroundColor = '#f5f5f5'
+              }
+              if (el.tagName === 'A') {
+                el.style.color = '#0066cc'
+              }
+              if (el.tagName === 'BLOCKQUOTE') {
+                el.style.color = '#444'
+              }
+            }
+          })
+          
+          const opt = {
+            margin: 10,
+            filename: 'document.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          }
+          
+          html2pdf().set(opt).from(tempContainer).save().then(() => {
+            document.body.removeChild(tempContainer)
+          })
+        }
+        break
+    }
+  }
+
+  const downloadFile = (url: string, filename: string) => {
     const a = document.createElement("a")
     a.href = url
-    a.download = "document.md"
+    a.download = filename
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -67,10 +148,25 @@ export default function MarkdownViewer() {
             <h1 className="text-xl font-bold">Markdown Viewer</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport} title="Export Markdown" className="gap-1">
-              <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleExport('md')}>
+                  Markdown (.md)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('html')}>
+                  HTML (.html)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                  PDF (.pdf)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
                 {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
