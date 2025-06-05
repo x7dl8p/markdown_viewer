@@ -17,7 +17,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import html2pdf from 'html2pdf.js'
+import type html2pdf from 'html2pdf.js' // Import only the type for TypeScript support
 import { DEFAULT_MARKDOWN } from "../components/defaultMarkdown";
 
 // Custom hook for debouncing values
@@ -44,23 +44,30 @@ export default function MarkdownViewer() {
   const [mounted, setMounted] = useState(false)
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [activeTab, setActiveTab] = useState<string>("editor")
+  const [html2pdfLib, setHtml2pdfLib] = useState<any>(null)
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
+    import('html2pdf.js')
+      .then(module => {
+        setHtml2pdfLib(module.default || module)
+      })
+      .catch(err => {
+        console.error("Failed to load html2pdf.js:", err)
+      })
   }, [])
 
   const handleExport = (format: 'md' | 'html' | 'pdf') => {
     switch (format) {
       case 'md':
-        // Export as markdown (existing functionality)
         const mdBlob = new Blob([markdown], { type: "text/markdown" })
         const mdUrl = URL.createObjectURL(mdBlob)
         downloadFile(mdUrl, "document.md")
         break
         
       case 'html':
-        // Export as HTML
+        const proseElementForHtml = document.querySelector('.prose');
+        const htmlToExport = proseElementForHtml ? proseElementForHtml.innerHTML : '';
         const htmlContent = `
           <!DOCTYPE html>
           <html>
@@ -68,16 +75,20 @@ export default function MarkdownViewer() {
             <meta charset="utf-8">
             <title>Exported Markdown</title>
             <style>
-              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #000; background-color: #fff; }
-              pre { background-color: #f5f5f5; padding: 16px; border-radius: 4px; overflow-x: auto; }
+              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; color: #000; background-color: #fff; border: 1px solid #ddd; }
+              pre { background-color: #f5f5f5; padding: 16px; border-radius: 4px; overflow-x: auto; border: 1px solid #eee; }
               code { font-family: monospace; }
-              img { max-width: 100%; }
-              a { color: #0066cc; }
-              blockquote { border-left: 4px solid #ddd; padding-left: 1rem; margin-left: 0; color: #444; }
+              img { max-width: 100%; height: auto; }
+              a { color: #0066cc; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+              blockquote { border-left: 4px solid #ddd; padding-left: 1rem; margin-left: 0; color: #555; font-style: italic; }
+              table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f9f9f9; }
             </style>
           </head>
           <body>
-            ${document.querySelector('.prose')?.innerHTML || ''}
+            ${htmlToExport}
           </body>
           </html>
         `
@@ -87,45 +98,162 @@ export default function MarkdownViewer() {
         break
         
       case 'pdf':
-        const element = document.querySelector('.prose')
-        if (element) {
-          const clonedElement = element.cloneNode(true) as HTMLElement
-          const tempContainer = document.createElement('div')
-          tempContainer.appendChild(clonedElement)
-          
-          tempContainer.style.color = '#000'
-          tempContainer.style.backgroundColor = '#fff'
-          const textElements = tempContainer.querySelectorAll('*')
-          textElements.forEach(el => {
-            if (el instanceof HTMLElement) {
-              el.style.color = '#000'
-              if (el.tagName === 'CODE' || el.tagName === 'PRE') {
-                el.style.backgroundColor = '#f5f5f5'
-              }
-              if (el.tagName === 'A') {
-                el.style.color = '#0066cc'
-              }
-              if (el.tagName === 'BLOCKQUOTE') {
-                el.style.color = '#444'
-              }
-            }
-          })
-          
-          const opt = {
-            margin: 10,
-            filename: 'document.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          }
-          
-          html2pdf().set(opt).from(tempContainer).save().then(() => {
-            document.body.removeChild(tempContainer)
-          })
+        if (!html2pdfLib) {
+          alert("PDF generation library is still loading. Please try again.");
+          return;
         }
-        break
+        
+        // Get the prose element content - same approach as HTML export
+        const proseElementForPdf = document.querySelector('.prose');
+        const pdfContent = proseElementForPdf ? proseElementForPdf.innerHTML : '';
+        
+        if (!pdfContent.trim()) {
+          alert("No content to export.");
+          return;
+        }
+        
+        // Create a full HTML document for PDF export with styling
+        const pdfHtmlDoc = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>PDF Export</title>
+            <style>
+              @page { margin: 15mm; }
+              body { 
+                font-family: system-ui, sans-serif; 
+                max-width: 800px; 
+                margin: 0 auto; 
+                padding: 0; 
+                color: #000; 
+                background-color: #fff; 
+              }
+              h1, h2, h3, h4, h5, h6 { 
+                color: #000; 
+                margin-top: 1.5em;
+                margin-bottom: 0.75em;
+              }
+              h1 { font-size: 1.8em; }
+              h2 { font-size: 1.5em; }
+              h3 { font-size: 1.3em; }
+              p { margin: 1em 0; line-height: 1.5; }
+              pre { 
+                background-color: #f5f5f5; 
+                padding: 16px; 
+                border-radius: 4px; 
+                overflow-x: auto; 
+                border: 1px solid #eee;
+                margin: 1em 0;
+              }
+              code { 
+                font-family: monospace;
+                background-color: #f5f5f5;
+                padding: 0.2em 0.4em;
+                border-radius: 3px;
+                font-size: 85%;
+              }
+              pre code {
+                background-color: transparent;
+                padding: 0;
+                border-radius: 0;
+                font-size: 100%;
+              }
+              img { 
+                max-width: 100%; 
+                height: auto; 
+              }
+              a { 
+                color: #0066cc; 
+                text-decoration: none; 
+              }
+              blockquote { 
+                border-left: 4px solid #ddd; 
+                padding-left: 1rem; 
+                margin-left: 0; 
+                color: #555; 
+                font-style: italic; 
+              }
+              table { 
+                border-collapse: collapse; 
+                width: 100%; 
+                margin-bottom: 1rem; 
+              }
+              th, td { 
+                border: 1px solid #ddd; 
+                padding: 8px; 
+                text-align: left; 
+              }
+              th { 
+                background-color: #f9f9f9; 
+              }
+              ul, ol {
+                padding-left: 2em;
+                margin: 1em 0;
+              }
+              li {
+                margin-bottom: 0.5em;
+              }
+            </style>
+          </head>
+          <body>
+            ${pdfContent}
+          </body>
+          </html>
+        `;
+        
+        // Create an iframe to render the content
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.position = 'absolute';
+        iframe.style.opacity = '0';
+        iframe.title = 'PDF Export Frame';
+        document.body.appendChild(iframe);
+        
+        // Wait for iframe to be appended
+        setTimeout(() => {
+          if (iframe.contentWindow) {
+            // Write the content to the iframe
+            iframe.contentWindow.document.open();
+            iframe.contentWindow.document.write(pdfHtmlDoc);
+            iframe.contentWindow.document.close();
+            
+            // Wait for content to fully render
+            setTimeout(() => {
+              const opt = {
+                margin: [10, 10, 10, 10],
+                filename: 'document.pdf',
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { 
+                  scale: 2,
+                  useCORS: true,
+                  letterRendering: true,
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              };
+              
+              // Generate PDF from iframe's body
+              if (iframe.contentWindow && iframe.contentWindow.document.body) {
+                html2pdfLib.from(iframe.contentWindow.document.body).set(opt).save()
+                  .then(() => {
+                    document.body.removeChild(iframe);
+                  })
+                  .catch((err: Error) => {
+                    console.error("Error generating PDF:", err);
+                    document.body.removeChild(iframe);
+                    alert("Failed to generate PDF. Please try again.");
+                  });
+              } else {
+                document.body.removeChild(iframe);
+              }
+            }, 1000); // Give content time to render
+          }
+        }, 200);
+        
+        break;
     }
-  }
+  };
 
   const downloadFile = (url: string, filename: string) => {
     const a = document.createElement("a")
@@ -145,7 +273,7 @@ export default function MarkdownViewer() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-bold">Markdown Viewer</h1>
+            <h1 className="text-xl font-bold">MDviwr</h1>
           </div>
           <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -209,13 +337,19 @@ export default function MarkdownViewer() {
                         const match = /language-(\w+)/.exec(className || "")
                         return !inline && match ? (
                           <SyntaxHighlighter
-                            style={theme === "dark" ? vscDarkPlus : vs}
+                            style={theme === "dark" ? vscDarkPlus : vs} // Use 'vs' for light theme
                             language={match[1]}
                             PreTag="div"
                             customStyle={{
-                              backgroundColor: 'var(--syntax-bg)',
+                              backgroundColor: 'transparent', // Syntax highlighter bg should be transparent if pre has bg
                               margin: 0,
-                              padding: '1rem',
+                              padding: '0', // Padding handled by <pre>
+                            }}
+                            codeTagProps={{
+                                style: {
+                                    fontFamily: "monospace", // Ensure monospace font for code
+                                    fontSize: "90%",
+                                }
                             }}
                             {...props}
                           >
@@ -261,13 +395,19 @@ export default function MarkdownViewer() {
                         const match = /language-(\w+)/.exec(className || "")
                         return !inline && match ? (
                           <SyntaxHighlighter
-                            style={theme === "dark" ? (vscDarkPlus as any) : (vs as any)}
+                            style={theme === "dark" ? (vscDarkPlus as any) : (vs as any)} // Use 'vs' for light theme
                             language={match[1]}
                             PreTag="div"
                             customStyle={{
-                              backgroundColor: 'var(--syntax-bg)',
+                              backgroundColor: 'transparent',
                               margin: 0,
-                              padding: '1rem',
+                              padding: '0',
+                            }}
+                            codeTagProps={{
+                                style: {
+                                    fontFamily: "monospace",
+                                    fontSize: "90%",
+                                }
                             }}
                             {...props}
                           >
