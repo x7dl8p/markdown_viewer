@@ -8,7 +8,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import MarkdownPreview from "@/components/MarkdownPreview";
-import Header from "@/components/Header";
+import Footer from "@/components/footer";
 
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
@@ -63,13 +63,13 @@ export default function MarkdownViewer() {
         const mdUrl = URL.createObjectURL(mdBlob);
         downloadFile(mdUrl, "document.md");
         break;
-        
+
       case 'html':
         const container = document.createElement('div');
         container.style.position = 'absolute';
         container.style.left = '-9999px';
         document.body.appendChild(container);
-        
+
         const ReactDOMServer = require('react-dom/server');
         const htmlContent = ReactDOMServer.renderToString(
           <div className="markdown-body">
@@ -82,7 +82,7 @@ export default function MarkdownViewer() {
             </ReactMarkdown>
           </div>
         );
-        
+
         const fullHtml = `
           <!DOCTYPE html>
           <html>
@@ -107,7 +107,7 @@ export default function MarkdownViewer() {
           </body>
           </html>
         `;
-        
+
         const htmlBlob = new Blob([fullHtml], { type: "text/html" });
         const htmlUrl = URL.createObjectURL(htmlBlob);
         downloadFile(htmlUrl, "document.html");
@@ -138,17 +138,17 @@ export default function MarkdownViewer() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <Header theme={(theme || "light") as "light" | "dark"} setTheme={setTheme} mounted={mounted} handleExport={handleExport} />
-      <main className="flex-1 p-4 container mx-auto">
-        <div className="grid grid-cols-2 gap-4 h-full">
-          <div className="h-[calc(100vh-140px)] rounded-md border shadow-sm overflow-hidden">
+      <main className="flex-1 p-4">
+        <div className="flex flex-row gap-4 h-full">
+          <div className="h-[calc(100vh-11vh)] w-[60vw] rounded-md border shadow-sm overflow-hidden">
             <MarkdownEditor markdown={markdown} setMarkdown={setMarkdown} />
           </div>
-          <div className="h-[calc(100vh-140px)] rounded-md border shadow-sm overflow-auto">
+          <div className="h-[calc(100vh-11vh)] flex-grow overflow-auto">
             <MarkdownPreview markdown={markdown} theme={(theme || "light") as "light" | "dark"} />
           </div>
         </div>
       </main>
+      <Footer theme={(theme || "light") as "light" | "dark"} setTheme={setTheme} mounted={mounted} handleExport={handleExport} />
     </div>
   );
 }

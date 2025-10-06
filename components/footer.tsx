@@ -17,10 +17,10 @@ interface HeaderProps {
 const Header: FC<HeaderProps> = ({ theme, setTheme, mounted, handleExport }) => {
   return (
     <header className="border-b bg-card">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className=" px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold">MDviwr</h1>
+          <h1 className="text-xl font-bold">Awesome MD</h1>
         </div>
         <div className="flex items-center gap-2">
           <ExportOptions handleExport={handleExport} />

@@ -44,8 +44,8 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
   };
 
   return (
-    <div className="h-full rounded-md border">
-      <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm">Preview</div>
+    <div className="h-full rounded-md border overflow-auto">
+      <div className="bg-muted/40 px-4 py-2 border-b font-medium text-xl">Preview</div>
       <div className="prose dark:prose-invert max-w-none p-4">
         <ReactMarkdown
           components={{
