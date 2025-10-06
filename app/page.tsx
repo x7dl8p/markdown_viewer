@@ -138,9 +138,9 @@ export default function MarkdownViewer() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <main className="flex-1 p-4">
+      <main className="flex-1 p-4 overflow-hidden">
         <div className="flex flex-row gap-4 h-full">
-          <div className="h-[calc(100vh-11vh)] w-[60vw] rounded-md border shadow-sm overflow-hidden">
+          <div className="h-[calc(100vh-11vh)] w-[70vw] rounded-md border shadow-sm overflow-hidden">
             <MarkdownEditor markdown={markdown} setMarkdown={setMarkdown} />
           </div>
           <div className="h-[calc(100vh-11vh)] flex-grow overflow-auto">

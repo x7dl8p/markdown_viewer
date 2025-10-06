@@ -105,3 +105,20 @@ body {
     background-color: #555; /* Slightly lighter on hover */
   }
 }
+
+.app-zoom {
+  zoom: 0.7; /* Primary scaling */
+}
+
+/* Fallback for browsers not supporting zoom */
+@supports not (zoom: 0.7) {
+  .app-zoom {
+    transform: scale(0.7);
+    transform-origin: top left;
+    width: 135%; /* compensate for scale so width fills */
+  }
+}
+/* Optional: slightly smaller base font for finer reduction */
+:root {
+  font-size: 14px;
+}
