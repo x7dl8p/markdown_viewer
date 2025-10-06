@@ -9,8 +9,10 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Markdown Viewer",
-  description: "A lightweight Markdown editor and viewer",
-    generator: 'v0.dev'
+  description: "A lightweight Markdown editor by mohammad.is-a.dev",
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
