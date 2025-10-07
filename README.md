@@ -1,46 +1,25 @@
 # Markdown Viewer
 
-This project is a open source feature-rich Markdown Viewer.
+This project is a open source feature-rich Markdown Viewer (hopefully), you can request more [here](https://mohammad.is-a.dev/contact)
 
 ## Images
-![Screenshot from 2025-04-09 11-18-58](https://github.com/user-attachments/assets/2abeb15e-28c2-4e2a-8651-50b0e9331711)
-![Screenshot from 2025-04-09 11-19-05](https://github.com/user-attachments/assets/a9b357e2-12f0-41b6-a228-09ea04b772ce)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4183218d-9ce3-4e34-81c0-3bab09e6197f" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/54595814-ec80-4894-86fc-17626fc27e31" />
+
 
 
 ## Features
-- **Custom Themes** for better personalization
+- **Dual Themes** for better personalization
 - **Enhanced Export Options**
 - **Syntax Highlighting** for code blocks
-- **Dark Mode** support
+- **Quote** support
+- **Link** support
+- **nested points** support
+- **nested Quote** support
 
 
 ### Project setup guide for begginers.
 
-1. Clone the repository
-```bash
-git clone https://github.com/x7dl8p/markdown_viewer.git
-cd markdown_viewer
-```
+usual ones.
 
-2. Install dependencies
-```bash
-npm i
-```
-
-3. Run the development Server.
-```bash
-npm run dev
-```
-
-
-4. Run the build command.
-```bash
-npm run build
-```
-
-5. Start the server.
-```bash
-npm start
-```
-
-Enjoy the new markdown experience :)
+Enjoy the new markdown :)
