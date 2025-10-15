@@ -1,4 +1,3 @@
-// MarkdownEditor.tsx
 "use client";
 
 import { FC, useRef } from "react";
@@ -22,15 +21,18 @@ const MarkdownEditor: FC<MarkdownEditorProps> = ({ markdown, setMarkdown }) => {
     let newCursorPos: number;
 
     if (wrap && start !== end) {
-      // Wrap selected text
       const selectedText = markdown.slice(start, end);
-      newText = markdown.slice(0, start) + text + selectedText + text + markdown.slice(end);
+      newText =
+        markdown.slice(0, start) +
+        text +
+        selectedText +
+        text +
+        markdown.slice(end);
       newCursorPos = start + text.length + selectedText.length + text.length;
     } else {
-      // Insert at cursor
       newText = markdown.slice(0, start) + text + markdown.slice(end);
       if (text === "```\n\n```") {
-        newCursorPos = start + 4; // Position cursor inside the code block
+        newCursorPos = start + 4;
       } else {
         newCursorPos = start + text.length;
       }
@@ -38,7 +40,6 @@ const MarkdownEditor: FC<MarkdownEditorProps> = ({ markdown, setMarkdown }) => {
 
     setMarkdown(newText);
 
-    // Set cursor position
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(newCursorPos, newCursorPos);
@@ -46,11 +47,11 @@ const MarkdownEditor: FC<MarkdownEditorProps> = ({ markdown, setMarkdown }) => {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       <MarkdownToolbar onInsert={insertText} />
       <textarea
         ref={textareaRef}
-        className="w-full h-full p-4 resize-none focus:outline-none bg-background"
+        className="flex-1 w-full p-4 resize-none focus:outline-none bg-background overflow-auto"
         value={markdown}
         onChange={(e) => setMarkdown(e.target.value)}
         placeholder="Type your markdown here..."

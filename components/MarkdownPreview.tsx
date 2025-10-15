@@ -1,10 +1,12 @@
-// MarkdownPreview.tsx
 "use client";
 
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import {
+  vscDarkPlus,
+  vs,
+} from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 interface MarkdownPreviewProps {
   markdown: string;
@@ -45,8 +47,10 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
 
   return (
     <div className="h-full rounded-md border overflow-auto">
-      <div className="bg-muted/40 px-4 py-2 border-b font-medium text-xl">Preview</div>
-      <div className="prose dark:prose-invert max-w-none p-4">
+      <div className="bg-muted/40 px-4 py-2 border-b font-medium text-xl">
+        Preview
+      </div>
+      <div className="prose dark:prose-invert max-w-none p-4 break-words">
         <ReactMarkdown
           components={{
             code: (props) => createSyntaxHighlighter(props),

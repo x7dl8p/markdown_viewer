@@ -5,29 +5,40 @@ import { DEFAULT_MARKDOWN } from "@/components/defaultMarkdown";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import {
+  vscDarkPlus,
+  vs,
+} from "react-syntax-highlighter/dist/cjs/styles/prism";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import Footer from "@/components/footer";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [html2pdfLib, setHtml2pdfLib] = useState<any>(null);
+  const [jsPDFLib, setJsPDFLib] = useState<any>(null);
+  const [html2canvasLib, setHtml2canvasLib] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
-    import("html2pdf.js")
-      .then((module) => {
-        setHtml2pdfLib(module.default || module);
+    Promise.all([import("jspdf"), import("html2canvas")])
+      .then(([jsPDFModule, html2canvasModule]) => {
+        setJsPDFLib(() => jsPDFModule.default);
+        setHtml2canvasLib(() => html2canvasModule.default);
       })
       .catch((err) => {
-        console.error("Failed to load html2pdf.js:", err);
+        console.error("Failed to load PDF libraries:", err);
       });
   }, []);
 
-  const createSyntaxHighlighter = (props: { node?: any; inline?: boolean; className?: string; children?: React.ReactNode }) => {
+  const createSyntaxHighlighter = (props: {
+    node?: any;
+    inline?: boolean;
+    className?: string;
+    children?: React.ReactNode;
+  }) => {
     const { node, inline, className, children, ...restProps } = props;
     const match = /language-(\w+)/.exec(className || "");
     return !inline && match ? (
@@ -58,24 +69,24 @@ export default function MarkdownViewer() {
   };
   const handleExport = (format: "md" | "html" | "pdf") => {
     switch (format) {
-      case 'md':
+      case "md":
         const mdBlob = new Blob([markdown], { type: "text/markdown" });
         const mdUrl = URL.createObjectURL(mdBlob);
         downloadFile(mdUrl, "document.md");
         break;
 
-      case 'html':
-        const container = document.createElement('div');
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
+      case "html":
+        const container = document.createElement("div");
+        container.style.position = "absolute";
+        container.style.left = "-9999px";
         document.body.appendChild(container);
 
-        const ReactDOMServer = require('react-dom/server');
+        const ReactDOMServer = require("react-dom/server");
         const htmlContent = ReactDOMServer.renderToString(
           <div className="markdown-body">
             <ReactMarkdown
               components={{
-                code: (props) => createSyntaxHighlighter(props)
+                code: (props) => createSyntaxHighlighter(props),
               }}
             >
               {markdown}
@@ -114,12 +125,117 @@ export default function MarkdownViewer() {
         document.body.removeChild(container);
         break;
       case "pdf":
-        if (!html2pdfLib) {
+        if (!jsPDFLib || !html2canvasLib) {
           alert("PDF generation library is still loading. Please try again.");
           return;
         }
-        const pdfOptions = { filename: "document.pdf" };
-        html2pdfLib().from(markdown).set(pdfOptions).save();
+
+        const pdfContainer = document.createElement("div");
+        pdfContainer.style.position = "absolute";
+        pdfContainer.style.left = "-9999px";
+        pdfContainer.style.width = "210mm";
+        pdfContainer.style.padding = "20px";
+        pdfContainer.style.backgroundColor = "#ffffff";
+        pdfContainer.style.color = "#000000";
+        pdfContainer.style.fontFamily = "system-ui, sans-serif";
+        document.body.appendChild(pdfContainer);
+
+        import("react-dom/client").then((ReactDOM) => {
+          const root = ReactDOM.createRoot(pdfContainer);
+          root.render(
+            <div
+              style={{
+                fontFamily: "system-ui, sans-serif",
+                color: "#000",
+                lineHeight: "1.6",
+              }}
+            >
+              <ReactMarkdown
+                components={{
+                  code: (props: any) => {
+                    const { node, inline, className, children, ...restProps } =
+                      props;
+                    const match = /language-(\w+)/.exec(className || "");
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        style={vs}
+                        language={match[1]}
+                        PreTag="div"
+                        customStyle={{
+                          backgroundColor: "#e4e4e7",
+                          padding: "16px",
+                          borderRadius: "4px",
+                          margin: "10px 0",
+                        }}
+                        {...restProps}
+                      >
+                        {String(children).replace(/\n$/, "")}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code
+                        style={{
+                          backgroundColor: "#e4e4e7",
+                          padding: "2px 4px",
+                          borderRadius: "3px",
+                          fontFamily: "monospace",
+                        }}
+                        {...restProps}
+                      >
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {markdown}
+              </ReactMarkdown>
+            </div>
+          );
+
+          setTimeout(() => {
+            html2canvasLib(pdfContainer, {
+              scale: 2,
+              useCORS: true,
+              backgroundColor: "#ffffff",
+              logging: false,
+            })
+              .then((canvas: HTMLCanvasElement) => {
+                const imgData = canvas.toDataURL("image/png");
+                const pdf = new jsPDFLib("p", "mm", "a4");
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                  position = heightLeft - imgHeight;
+                  pdf.addPage();
+                  pdf.addImage(
+                    imgData,
+                    "PNG",
+                    0,
+                    position,
+                    imgWidth,
+                    imgHeight
+                  );
+                  heightLeft -= pageHeight;
+                }
+
+                pdf.save("document.pdf");
+                root.unmount();
+                document.body.removeChild(pdfContainer);
+              })
+              .catch((err: any) => {
+                console.error("PDF generation failed:", err);
+                root.unmount();
+                document.body.removeChild(pdfContainer);
+              });
+          }, 500);
+        });
         break;
     }
   };
@@ -139,16 +255,29 @@ export default function MarkdownViewer() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <main className="flex-1 p-4 overflow-hidden">
-        <div className="flex flex-row gap-4 h-full">
-          <div className="h-[calc(100vh-11vh)] w-[70vw] rounded-md border shadow-sm overflow-hidden">
+        <PanelGroup direction="horizontal" className="h-full">
+          <Panel
+            defaultSize={60}
+            minSize={20}
+            className="rounded-md border shadow-sm overflow-hidden mx-2"
+          >
             <MarkdownEditor markdown={markdown} setMarkdown={setMarkdown} />
-          </div>
-          <div className="h-[calc(100vh-11vh)] flex-grow overflow-auto">
-            <MarkdownPreview markdown={markdown} theme={(theme || "light") as "light" | "dark"} />
-          </div>
-        </div>
+          </Panel>
+          <PanelResizeHandle className="w-1 bg-border hover:bg-muted-foreground transition-colors" />
+          <Panel defaultSize={40} minSize={20} className="overflow-auto mx-2">
+            <MarkdownPreview
+              markdown={markdown}
+              theme={(theme || "light") as "light" | "dark"}
+            />
+          </Panel>
+        </PanelGroup>
       </main>
-      <Footer theme={(theme || "light") as "light" | "dark"} setTheme={setTheme} mounted={mounted} handleExport={handleExport} />
+      <Footer
+        theme={(theme || "light") as "light" | "dark"}
+        setTheme={setTheme}
+        mounted={mounted}
+        handleExport={handleExport}
+      />
     </div>
   );
 }
