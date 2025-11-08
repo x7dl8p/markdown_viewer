@@ -23,7 +23,11 @@ const MermaidDiagram: React.FC<{ chart: string; theme: "light" | "dark" }> = ({
     }
   }, [chart, theme]);
 
-  return <div ref={ref} className="mermaid">{chart}</div>;
+  return (
+    <div ref={ref} className="mermaid">
+      {chart}
+    </div>
+  );
 };
 
 const COLOR_MAP: Record<string, string> = {

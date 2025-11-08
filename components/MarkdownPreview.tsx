@@ -4,7 +4,10 @@ import { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser";
+import {
+  preprocessMarkdown,
+  getMarkdownComponents,
+} from "@/lib/markdownParser";
 
 interface MarkdownPreviewProps {
   markdown: string;
@@ -12,7 +15,6 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
-  // Preprocess markdown to handle custom syntax
   const processedMarkdown = preprocessMarkdown(markdown);
 
   return (

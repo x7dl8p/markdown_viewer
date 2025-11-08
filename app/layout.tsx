@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://awsm-md.vercel.app'), // Replace with your actual domain
+  metadataBase: new URL('https://awsm-md.vercel.app'),
   alternates: {
     canonical: '/',
   },
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "Awsm MD - Free Online Markdown Editor & Viewer",
     description: "Create, edit, and preview Markdown documents with syntax highlighting. Export to PDF, HTML, and MD formats.",
     images: ["/placeholder-logo.png"],
-    creator: "@yourtwitterhandle", // Replace with actual Twitter handle
+    creator: "@d3v_mohammad",
   },
   robots: {
     index: true,
@@ -72,15 +72,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: "your-google-site-verification-code", // Replace with actual verification code
-  },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/placeholder-logo.png',
   },
-  manifest: '/manifest.json', // If you have a web app manifest
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
@@ -124,6 +121,7 @@ export default function RootLayout({
             })
           }}
         />
+        <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>

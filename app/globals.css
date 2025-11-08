@@ -97,35 +97,35 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #444; /* Dark color for the scrollbar */
+    background-color: #444;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #555; /* Slightly lighter on hover */
+    background-color: #555;
   }
 }
 
 .app-zoom {
-  zoom: 0.7; /* Primary scaling */
+  zoom: 0.7;
 }
 
-/* Fallback for browsers not supporting zoom */
+
 @supports not (zoom: 0.7) {
   .app-zoom {
     transform: scale(0.7);
     transform-origin: top left;
-    width: 135%; /* compensate for scale so width fills */
+    width: 135%;
   }
 }
-/* Optional: slightly smaller base font for finer reduction */
+
 :root {
   font-size: 14px;
 }
 
-/* Markdown Custom Styles */
 
-/* Spoiler text */
+
+
 .spoiler {
   background-color: #71717a;
   color: #71717a;
@@ -150,7 +150,7 @@ body {
   color: inherit;
 }
 
-/* Marked/Highlighted text */
+
 mark {
   background-color: #ffff00;
   color: #000;
@@ -163,7 +163,7 @@ mark {
   color: #000;
 }
 
-/* Admonitions */
+
 .admonition {
   margin: 1.5rem 0;
   padding: 1rem;
@@ -251,7 +251,7 @@ mark {
   background-color: rgba(235, 160, 172, 0.075);
 }
 
-/* Table of Contents */
+
 .toc {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 1rem;
@@ -289,7 +289,7 @@ mark {
   color: #60a5fa;
 }
 
-/* Centered and aligned text */
+
 .text-center {
   text-align: center;
 }
@@ -298,7 +298,7 @@ mark {
   text-align: right;
 }
 
-/* Enhanced prose styles for custom markdown */
+
 .prose mark,
 .dark .prose mark {
   background-color: #ffff00;
@@ -309,7 +309,7 @@ mark {
   background-color: #ffd700;
 }
 
-/* Mermaid Diagrams */
+
 .mermaid {
   display: flex;
   justify-content: center;

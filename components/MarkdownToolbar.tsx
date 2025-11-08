@@ -124,40 +124,9 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
       <Button variant="outline" size="sm" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
         <Link className="h-4 w-4" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("- [ ] Task 1\n- [ ] Task 2\n- [x] Completed task\n")}>
+      <Button variant="outline" size="sm" onClick={() => onInsert("- [ ] Task item\n")}>
         <CheckSquare className="h-4 w-4" />
       </Button>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <AlertTriangle className="h-4 w-4 mr-1" /> Admonitions{" "}
-            <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => onInsert("!!! note Note Title\n    This is a note admonition.\n\n")}>
-            <span className="w-2 h-2 rounded-full bg-[#cba6f7] mr-2"></span>
-            Note
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("!!! info Info Title\n    This is an info admonition.\n\n")}>
-            <span className="w-2 h-2 rounded-full bg-[#74c7ec] mr-2"></span>
-            Info
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("!!! warning Warning Title\n    This is a warning admonition.\n\n")}>
-            <span className="w-2 h-2 rounded-full bg-[#fab387] mr-2"></span>
-            Warning
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("!!! danger Danger Title\n    This is a danger admonition.\n\n")}>
-            <span className="w-2 h-2 rounded-full bg-[#eba0ac] mr-2"></span>
-            Danger
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("!!! greentext Greentext Title\n    This is a greentext admonition.\n\n")}>
-            <span className="w-2 h-2 rounded-full bg-[#a6e3a1] mr-2"></span>
-            Greentext
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
 
       <div className="flex-1" />
 
