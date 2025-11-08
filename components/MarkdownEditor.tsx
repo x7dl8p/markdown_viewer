@@ -48,7 +48,11 @@ const MarkdownEditor: FC<MarkdownEditorProps> = ({ markdown, setMarkdown }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <MarkdownToolbar onInsert={insertText} />
+      <MarkdownToolbar
+        onInsert={insertText}
+        markdown={markdown}
+        setMarkdown={setMarkdown}
+      />
       <textarea
         ref={textareaRef}
         className="flex-1 w-full p-4 resize-none focus:outline-none bg-background overflow-auto"

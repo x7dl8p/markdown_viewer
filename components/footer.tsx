@@ -5,6 +5,7 @@ import { FileText, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ExportOptions from "./ExportOptions";
 import ThemeToggle from "./ThemeToggle";
+import InfoDialog from "./InfoDialog";
 
 interface HeaderProps {
   theme: "light" | "dark";
@@ -30,6 +31,7 @@ const Header: FC<HeaderProps> = ({
           <ExportOptions handleExport={handleExport} />
           <div className="flex items-center gap-2">
             <ThemeToggle theme={theme} setTheme={setTheme} mounted={mounted} />
+            <InfoDialog />
             <Button
               variant="outline"
               size="icon"

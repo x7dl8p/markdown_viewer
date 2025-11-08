@@ -2,11 +2,9 @@
 
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  vscDarkPlus,
-  vs,
-} from "react-syntax-highlighter/dist/cjs/styles/prism";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser";
 
 interface MarkdownPreviewProps {
   markdown: string;
@@ -14,36 +12,8 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
-  const createSyntaxHighlighter = (props: any) => {
-    const { node, inline, className, children, ...restProps } = props;
-    const match = /language-(\w+)/.exec(className || "");
-
-    return !inline && match ? (
-      <SyntaxHighlighter
-        style={theme === "dark" ? vscDarkPlus : vs}
-        language={match[1]}
-        PreTag="div"
-        customStyle={{
-          backgroundColor: "transparent",
-          margin: 0,
-          padding: "0",
-        }}
-        codeTagProps={{
-          style: {
-            fontFamily: "monospace",
-            fontSize: "90%",
-          },
-        }}
-        {...restProps}
-      >
-        {String(children).replace(/\n$/, "")}
-      </SyntaxHighlighter>
-    ) : (
-      <code className={className} {...restProps}>
-        {children}
-      </code>
-    );
-  };
+  // Preprocess markdown to handle custom syntax
+  const processedMarkdown = preprocessMarkdown(markdown);
 
   return (
     <div className="h-full rounded-md border overflow-auto">
@@ -52,11 +22,11 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
       </div>
       <div className="prose dark:prose-invert max-w-none p-4 break-words">
         <ReactMarkdown
-          components={{
-            code: (props) => createSyntaxHighlighter(props),
-          }}
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+          components={getMarkdownComponents(theme)}
         >
-          {markdown}
+          {processedMarkdown}
         </ReactMarkdown>
       </div>
     </div>

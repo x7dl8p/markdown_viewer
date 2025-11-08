@@ -20,15 +20,58 @@ import {
   Quote,
   Link,
   Minus,
+  Save,
+  RotateCcw,
+  CheckSquare,
+  AlertTriangle,
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
 
 interface MarkdownToolbarProps {
   onInsert: (text: string, wrap?: boolean) => void;
+  markdown: string;
+  setMarkdown: (markdown: string) => void;
 }
 
-const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert }) => {
+const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMarkdown }) => {
+  const handleSave = () => {
+    try {
+      localStorage.setItem('awsm-md-content', markdown);
+      localStorage.setItem('awsm-md-saved-at', new Date().toISOString());
+      toast({
+        title: 'Saved locally!',
+        description: 'Your markdown has been saved to browser storage.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to save',
+        description: 'Could not save to local storage.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDiscard = () => {
+    try {
+      localStorage.removeItem('awsm-md-content');
+      localStorage.removeItem('awsm-md-saved-at');
+      setMarkdown(DEFAULT_MARKDOWN);
+      toast({
+        title: 'Reset to default!',
+        description: 'Your changes have been discarded and reset to default.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to reset',
+        description: 'Could not reset to default.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
-    <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm flex items-center gap-2 flex-wrap">
+    <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm flex items-center gap-2 flex-wrap justify-between">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
@@ -80,6 +123,51 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert }) => {
       </Button>
       <Button variant="outline" size="sm" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
         <Link className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => onInsert("- [ ] Task 1\n- [ ] Task 2\n- [x] Completed task\n")}>
+        <CheckSquare className="h-4 w-4" />
+      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <AlertTriangle className="h-4 w-4 mr-1" /> Admonitions{" "}
+            <ChevronDown className="ml-1 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onInsert("!!! note Note Title\n    This is a note admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#cba6f7] mr-2"></span>
+            Note
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! info Info Title\n    This is an info admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#74c7ec] mr-2"></span>
+            Info
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! warning Warning Title\n    This is a warning admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#fab387] mr-2"></span>
+            Warning
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! danger Danger Title\n    This is a danger admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#eba0ac] mr-2"></span>
+            Danger
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! greentext Greentext Title\n    This is a greentext admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#a6e3a1] mr-2"></span>
+            Greentext
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <div className="flex-1" />
+
+      <Button variant="outline" size="sm" onClick={handleSave} className="gap-1">
+        <Save className="h-4 w-4" />
+        Save
+      </Button>
+      <Button variant="outline" size="sm" onClick={handleDiscard} className="gap-1">
+        <RotateCcw className="h-4 w-4" />
+        Reset
       </Button>
     </div>
   );

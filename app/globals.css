@@ -122,3 +122,189 @@ body {
 :root {
   font-size: 14px;
 }
+
+/* Markdown Custom Styles */
+
+/* Spoiler text */
+.spoiler {
+  background-color: #71717a;
+  color: #71717a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.spoiler:hover {
+  background-color: transparent;
+  color: inherit;
+}
+
+.dark .spoiler {
+  background-color: #71717a;
+  color: #71717a;
+}
+
+.dark .spoiler:hover {
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Marked/Highlighted text */
+mark {
+  background-color: #ffff00;
+  color: #000;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.dark mark {
+  background-color: #ffd700;
+  color: #000;
+}
+
+/* Admonitions */
+.admonition {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-left: 4px solid;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .admonition {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1em;
+}
+
+.admonition-content {
+  margin-left: 0.5rem;
+}
+
+.admonition-note {
+  border-left-color: #cba6f7;
+  background-color: rgba(203, 166, 247, 0.05);
+}
+
+.admonition-note .admonition-title {
+  color: #cba6f7;
+}
+
+.admonition-info {
+  border-left-color: #74c7ec;
+  background-color: rgba(116, 199, 236, 0.05);
+}
+
+.admonition-info .admonition-title {
+  color: #74c7ec;
+}
+
+.admonition-warning {
+  border-left-color: #fab387;
+  background-color: rgba(250, 179, 135, 0.05);
+}
+
+.admonition-warning .admonition-title {
+  color: #fab387;
+}
+
+.admonition-danger {
+  border-left-color: #eba0ac;
+  background-color: rgba(235, 160, 172, 0.05);
+}
+
+.admonition-danger .admonition-title {
+  color: #eba0ac;
+}
+
+.admonition-greentext {
+  border-left-color: #a6e3a1;
+  background-color: rgba(166, 227, 161, 0.05);
+}
+
+.admonition-greentext .admonition-title {
+  color: #a6e3a1;
+}
+
+.dark .admonition-greentext {
+  background-color: rgba(166, 227, 161, 0.075);
+}
+
+.dark .admonition-note {
+  background-color: rgba(203, 166, 247, 0.075);
+}
+
+.dark .admonition-info {
+  background-color: rgba(116, 199, 236, 0.075);
+}
+
+.dark .admonition-warning {
+  background-color: rgba(250, 179, 135, 0.075);
+}
+
+.dark .admonition-danger {
+  background-color: rgba(235, 160, 172, 0.075);
+}
+
+/* Table of Contents */
+.toc {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.dark .toc {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.toc-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.toc-list ul {
+  list-style: none;
+  padding-left: 1.5rem;
+  margin: 0.25rem 0;
+}
+
+.toc-list a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.toc-list a:hover {
+  color: #3b82f6;
+}
+
+.dark .toc-list a:hover {
+  color: #60a5fa;
+}
+
+/* Centered and aligned text */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Enhanced prose styles for custom markdown */
+.prose mark,
+.dark .prose mark {
+  background-color: #ffff00;
+  color: #000;
+}
+
+.dark .prose mark {
+  background-color: #ffd700;
+}

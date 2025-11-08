@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DEFAULT_MARKDOWN } from "@/components/defaultMarkdown";
+import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   vscDarkPlus,
@@ -13,6 +15,7 @@ import MarkdownEditor from "@/components/MarkdownEditor";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import Footer from "@/components/footer";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser";
 
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
@@ -23,6 +26,13 @@ export default function MarkdownViewer() {
 
   useEffect(() => {
     setMounted(true);
+
+    // Load saved content from localStorage
+    const savedContent = localStorage.getItem('awsm-md-content');
+    if (savedContent) {
+      setMarkdown(savedContent);
+    }
+
     Promise.all([import("jspdf"), import("html2canvas")])
       .then(([jsPDFModule, html2canvasModule]) => {
         setJsPDFLib(() => jsPDFModule.default);
@@ -82,14 +92,15 @@ export default function MarkdownViewer() {
         document.body.appendChild(container);
 
         const ReactDOMServer = require("react-dom/server");
+        const processedMarkdown = preprocessMarkdown(markdown);
         const htmlContent = ReactDOMServer.renderToString(
           <div className="markdown-body">
             <ReactMarkdown
-              components={{
-                code: (props) => createSyntaxHighlighter(props),
-              }}
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={getMarkdownComponents(theme as "light" | "dark")}
             >
-              {markdown}
+              {processedMarkdown}
             </ReactMarkdown>
           </div>
         );
@@ -140,6 +151,8 @@ export default function MarkdownViewer() {
         pdfContainer.style.fontFamily = "system-ui, sans-serif";
         document.body.appendChild(pdfContainer);
 
+        const processedMarkdownPdf = preprocessMarkdown(markdown);
+
         import("react-dom/client").then((ReactDOM) => {
           const root = ReactDOM.createRoot(pdfContainer);
           root.render(
@@ -151,43 +164,11 @@ export default function MarkdownViewer() {
               }}
             >
               <ReactMarkdown
-                components={{
-                  code: (props: any) => {
-                    const { node, inline, className, children, ...restProps } =
-                      props;
-                    const match = /language-(\w+)/.exec(className || "");
-                    return !inline && match ? (
-                      <SyntaxHighlighter
-                        style={vs}
-                        language={match[1]}
-                        PreTag="div"
-                        customStyle={{
-                          backgroundColor: "#e4e4e7",
-                          padding: "16px",
-                          borderRadius: "4px",
-                          margin: "10px 0",
-                        }}
-                        {...restProps}
-                      >
-                        {String(children).replace(/\n$/, "")}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code
-                        style={{
-                          backgroundColor: "#e4e4e7",
-                          padding: "2px 4px",
-                          borderRadius: "3px",
-                          fontFamily: "monospace",
-                        }}
-                        {...restProps}
-                      >
-                        {children}
-                      </code>
-                    );
-                  },
-                }}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={getMarkdownComponents("light")}
               >
-                {markdown}
+                {processedMarkdownPdf}
               </ReactMarkdown>
             </div>
           );
