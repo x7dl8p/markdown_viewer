@@ -308,3 +308,10 @@ mark {
 .dark .prose mark {
   background-color: #ffd700;
 }
+
+/* Mermaid Diagrams */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}

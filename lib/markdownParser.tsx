@@ -1,14 +1,31 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Components } from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   vscDarkPlus,
   vs,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import mermaid from "mermaid";
 
-/**
- * Color mappings for named colors (Catppuccin-inspired pastel palette)
- */
+const MermaidDiagram: React.FC<{ chart: string; theme: "light" | "dark" }> = ({
+  chart,
+  theme,
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: theme === "dark" ? "dark" : "default",
+      });
+      mermaid.contentLoaded();
+    }
+  }, [chart, theme]);
+
+  return <div ref={ref} className="mermaid">{chart}</div>;
+};
+
 const COLOR_MAP: Record<string, string> = {
   red: "#f38ba8",
   green: "#a6e3a1",
@@ -135,6 +152,15 @@ export function getMarkdownComponents(theme: "light" | "dark"): Components {
       const match = /language-(\w+)/.exec(className || "");
 
       if (!inline && match) {
+        if (match[1] === "mermaid") {
+          return (
+            <MermaidDiagram
+              chart={String(children).replace(/\n$/, "")}
+              theme={theme}
+            />
+          );
+        }
+
         return (
           <SyntaxHighlighter
             style={theme === "dark" ? vscDarkPlus : vs}

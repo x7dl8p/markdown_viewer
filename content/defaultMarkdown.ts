@@ -77,6 +77,17 @@ This interactive viewer supports all standard markdown features and many advance
 - [x] Checked task
 - [ ] Another unchecked task
 
+
+## Diagrams
+
+\`\`\`mermaid
+graph TD
+    A[Node Label] --> B[Another Node]
+    B --> C{Decision Node}
+    C -->|Yes| D[Result 1]
+    C -->|No| E[Result 2]
+\`\`\`
+
 ## Links and Images
 
 [Visit GitHub](https://github.com/x7dl8p)
