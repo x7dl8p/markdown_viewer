@@ -6,11 +6,6 @@ import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  vscDarkPlus,
-  vs,
-} from "react-syntax-highlighter/dist/cjs/styles/prism";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import Footer from "@/components/footer";
@@ -52,41 +47,6 @@ export default function MarkdownViewer() {
 
     return () => clearTimeout(timer);
   }, [markdown]);
-
-  const createSyntaxHighlighter = useCallback((props: {
-    node?: any;
-    inline?: boolean;
-    className?: string;
-    children?: React.ReactNode;
-  }) => {
-    const { node, inline, className, children, ...restProps } = props;
-    const match = /language-(\w+)/.exec(className || "");
-    return !inline && match ? (
-      <SyntaxHighlighter
-        style={theme === "dark" ? vscDarkPlus : vs}
-        language={match[1]}
-        PreTag="div"
-        customStyle={{
-          backgroundColor: "transparent",
-          margin: 0,
-          padding: "0",
-        }}
-        codeTagProps={{
-          style: {
-            fontFamily: "monospace",
-            fontSize: "90%",
-          },
-        }}
-        {...restProps}
-      >
-        {String(children).replace(/\n$/, "")}
-      </SyntaxHighlighter>
-    ) : (
-      <code className={className} {...restProps}>
-        {children}
-      </code>
-    );
-  }, [theme]);
 
   const handleExport = useCallback((format: "md" | "html" | "pdf") => {
     switch (format) {
