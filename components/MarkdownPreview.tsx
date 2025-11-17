@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -15,7 +15,8 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
-  const processedMarkdown = preprocessMarkdown(markdown);
+  const processedMarkdown = useMemo(() => preprocessMarkdown(markdown), [markdown]);
+  const components = useMemo(() => getMarkdownComponents(theme), [theme]);
 
   return (
     <div className="h-full rounded-md border overflow-auto">
@@ -26,7 +27,7 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
-          components={getMarkdownComponents(theme)}
+          components={components}
         >
           {processedMarkdown}
         </ReactMarkdown>
@@ -35,4 +36,4 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = ({ markdown, theme }) => {
   );
 };
 
-export default MarkdownPreview;
+export default memo(MarkdownPreview);

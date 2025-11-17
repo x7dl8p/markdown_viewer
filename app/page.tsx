@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  vscDarkPlus,
-  vs,
-} from "react-syntax-highlighter/dist/cjs/styles/prism";
-import MarkdownEditor from "@/components/MarkdownEditor";
-import MarkdownPreview from "@/components/MarkdownPreview";
+import MobileLayout from "@/components/MobileLayout";
+import DesktopLayout from "@/components/DesktopLayout";
 import Footer from "@/components/footer";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser";
 
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
+  const [debouncedMarkdown, setDebouncedMarkdown] = useState<string>(DEFAULT_MARKDOWN);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [jsPDFLib, setJsPDFLib] = useState<any>(null);
@@ -26,11 +21,12 @@ export default function MarkdownViewer() {
 
   useEffect(() => {
     setMounted(true);
+    console.log("Awsm MD loaded correctly");
 
-    // Load saved content from localStorage
     const savedContent = localStorage.getItem('awsm-md-content');
     if (savedContent) {
       setMarkdown(savedContent);
+      setDebouncedMarkdown(savedContent);
     }
 
     Promise.all([import("jspdf"), import("html2canvas")])
@@ -43,41 +39,15 @@ export default function MarkdownViewer() {
       });
   }, []);
 
-  const createSyntaxHighlighter = (props: {
-    node?: any;
-    inline?: boolean;
-    className?: string;
-    children?: React.ReactNode;
-  }) => {
-    const { node, inline, className, children, ...restProps } = props;
-    const match = /language-(\w+)/.exec(className || "");
-    return !inline && match ? (
-      <SyntaxHighlighter
-        style={theme === "dark" ? vscDarkPlus : vs}
-        language={match[1]}
-        PreTag="div"
-        customStyle={{
-          backgroundColor: "transparent",
-          margin: 0,
-          padding: "0",
-        }}
-        codeTagProps={{
-          style: {
-            fontFamily: "monospace",
-            fontSize: "90%",
-          },
-        }}
-        {...restProps}
-      >
-        {String(children).replace(/\n$/, "")}
-      </SyntaxHighlighter>
-    ) : (
-      <code className={className} {...restProps}>
-        {children}
-      </code>
-    );
-  };
-  const handleExport = (format: "md" | "html" | "pdf") => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedMarkdown(markdown);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [markdown]);
+
+  const handleExport = useCallback((format: "md" | "html" | "pdf") => {
     switch (format) {
       case "md":
         const mdBlob = new Blob([markdown], { type: "text/markdown" });
@@ -219,9 +189,9 @@ export default function MarkdownViewer() {
         });
         break;
     }
-  };
+  }, [markdown, jsPDFLib, html2canvasLib, theme]);
 
-  const downloadFile = (url: string, filename: string) => {
+  const downloadFile = useCallback((url: string, filename: string) => {
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
@@ -229,29 +199,29 @@ export default function MarkdownViewer() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, []);
 
   if (!mounted) return null;
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <main className="flex-1 p-4 overflow-hidden">
-        <PanelGroup direction="horizontal" className="h-full">
-          <Panel
-            defaultSize={60}
-            minSize={20}
-            className="rounded-md border shadow-sm overflow-hidden mx-2"
-          >
-            <MarkdownEditor markdown={markdown} setMarkdown={setMarkdown} />
-          </Panel>
-          <PanelResizeHandle className="w-1 bg-border hover:bg-muted-foreground transition-colors" />
-          <Panel defaultSize={40} minSize={20} className="overflow-auto mx-2">
-            <MarkdownPreview
-              markdown={markdown}
-              theme={(theme || "light") as "light" | "dark"}
-            />
-          </Panel>
-        </PanelGroup>
+        <div className="hidden lg:block h-full">
+          <DesktopLayout
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            debouncedMarkdown={debouncedMarkdown}
+            theme={(theme || "light") as "light" | "dark"}
+          />
+        </div>
+        <div className="block lg:hidden h-full">
+          <MobileLayout
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            debouncedMarkdown={debouncedMarkdown}
+            theme={(theme || "light") as "light" | "dark"}
+          />
+        </div>
       </main>
       <Footer
         theme={(theme || "light") as "light" | "dark"}

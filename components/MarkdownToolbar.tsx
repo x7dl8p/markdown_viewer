@@ -1,7 +1,7 @@
 // MarkdownToolbar.tsx
 "use client";
 
-import { FC } from "react";
+import { FC, memo, useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,7 @@ import {
   RotateCcw,
   CheckSquare,
   AlertTriangle,
+  Highlighter,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
@@ -35,7 +36,7 @@ interface MarkdownToolbarProps {
 }
 
 const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMarkdown }) => {
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     try {
       localStorage.setItem('awsm-md-content', markdown);
       localStorage.setItem('awsm-md-saved-at', new Date().toISOString());
@@ -50,9 +51,9 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         variant: 'destructive',
       });
     }
-  };
+  }, [markdown]);
 
-  const handleDiscard = () => {
+  const handleDiscard = useCallback(() => {
     try {
       localStorage.removeItem('awsm-md-content');
       localStorage.removeItem('awsm-md-saved-at');
@@ -68,41 +69,28 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         variant: 'destructive',
       });
     }
-  };
+  }, [setMarkdown]);
 
   return (
-    <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm flex items-center gap-2 flex-wrap justify-between">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            Headings <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => onInsert("# heading1\n")}>H1</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("## heading2\n")}>H2</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("### heading3\n")}>H3</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("#### heading4\n")}>H4</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("##### heading5\n")}>H5</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("###### heading6\n")}>H6</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Button variant="outline" size="sm" onClick={() => onInsert("**bold text**", true)}>
-        <Bold className="h-4 w-4" />
+    <div className="bg-muted/40 px-2 py-1.5 border-b font-medium text-sm flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("**bold text**", true)}>
+        <Bold className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("*italic text*", true)}>
-        <Italic className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("*italic text*", true)}>
+        <Italic className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("```\n code here \n```")}>
-        <Code className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("==", true)}>
+        <Highlighter className="h-3.5 w-3.5" />
+      </Button>
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("```\n code here \n```")}>
+        <Code className="h-3.5 w-3.5" />
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <List className="h-4 w-4 mr-1" /> Lists{" "}
-            <ChevronDown className="ml-1 h-4 w-4" />
+          <Button variant="outline" className="h-7 px-2 text-xs shrink-0">
+            <List className="h-3.5 w-3.5 mr-1" />
+            <ChevronDown className="h-3.5 w-3.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -115,31 +103,64 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button variant="outline" size="sm" onClick={() => onInsert("> Quote text\n")}>
-        <Quote className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("> Quote text\n")}>
+        <Quote className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("\n\n---\n")}>
-        <Minus className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("\n\n---\n")}>
+        <Minus className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
-        <Link className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
+        <Link className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("- [ ] Task item\n")}>
-        <CheckSquare className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("- [ ] Task item\n")}>
+        <CheckSquare className="h-3.5 w-3.5" />
       </Button>
 
-      <div className="flex-1" />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="h-7 px-2 text-xs shrink-0">
+            <AlertTriangle className="h-3.5 w-3.5 mr-1" />
+            <ChevronDown className="h-3.5 w-3.5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onInsert("!!! note Note Title\n    This is a note admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#cba6f7] mr-2"></span>
+            Note
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! info Info Title\n    This is an info admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#74c7ec] mr-2"></span>
+            Info
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! warning Warning Title\n    This is a warning admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#fab387] mr-2"></span>
+            Warning
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! danger Danger Title\n    This is a danger admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#eba0ac] mr-2"></span>
+            Danger
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! greentext Greentext Title\n    This is a greentext admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#a6e3a1] mr-2"></span>
+            Greentext
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <Button variant="outline" size="sm" onClick={handleSave} className="gap-1">
-        <Save className="h-4 w-4" />
-        Save
-      </Button>
-      <Button variant="outline" size="sm" onClick={handleDiscard} className="gap-1">
-        <RotateCcw className="h-4 w-4" />
-        Reset
-      </Button>
+      <div className="flex-1 min-w-2" />
+
+      <div className="flex items-center border rounded-md overflow-hidden shrink-0">
+        <Button variant="ghost" className="h-7 px-2 text-xs gap-1 rounded-none border-r hover:bg-accent" onClick={handleSave}>
+          <Save className="h-3.5 w-3.5" />
+          Save
+        </Button>
+        <Button variant="ghost" className="h-7 px-2 text-xs gap-1 rounded-none hover:bg-accent" onClick={handleDiscard}>
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default MarkdownToolbar;
+export default memo(MarkdownToolbar);
