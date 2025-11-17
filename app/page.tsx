@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
 import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
@@ -19,6 +19,7 @@ import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser"
 
 export default function MarkdownViewer() {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
+  const [debouncedMarkdown, setDebouncedMarkdown] = useState<string>(DEFAULT_MARKDOWN);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [jsPDFLib, setJsPDFLib] = useState<any>(null);
@@ -26,11 +27,12 @@ export default function MarkdownViewer() {
 
   useEffect(() => {
     setMounted(true);
+    console.log("Awsm MD loaded correctly");
 
-    // Load saved content from localStorage
     const savedContent = localStorage.getItem('awsm-md-content');
     if (savedContent) {
       setMarkdown(savedContent);
+      setDebouncedMarkdown(savedContent);
     }
 
     Promise.all([import("jspdf"), import("html2canvas")])
@@ -43,7 +45,15 @@ export default function MarkdownViewer() {
       });
   }, []);
 
-  const createSyntaxHighlighter = (props: {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedMarkdown(markdown);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [markdown]);
+
+  const createSyntaxHighlighter = useCallback((props: {
     node?: any;
     inline?: boolean;
     className?: string;
@@ -76,8 +86,9 @@ export default function MarkdownViewer() {
         {children}
       </code>
     );
-  };
-  const handleExport = (format: "md" | "html" | "pdf") => {
+  }, [theme]);
+
+  const handleExport = useCallback((format: "md" | "html" | "pdf") => {
     switch (format) {
       case "md":
         const mdBlob = new Blob([markdown], { type: "text/markdown" });
@@ -219,9 +230,9 @@ export default function MarkdownViewer() {
         });
         break;
     }
-  };
+  }, [markdown, jsPDFLib, html2canvasLib, theme]);
 
-  const downloadFile = (url: string, filename: string) => {
+  const downloadFile = useCallback((url: string, filename: string) => {
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
@@ -229,7 +240,7 @@ export default function MarkdownViewer() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, []);
 
   if (!mounted) return null;
 
@@ -247,7 +258,7 @@ export default function MarkdownViewer() {
           <PanelResizeHandle className="w-1 bg-border hover:bg-muted-foreground transition-colors" />
           <Panel defaultSize={40} minSize={20} className="overflow-auto mx-2">
             <MarkdownPreview
-              markdown={markdown}
+              markdown={debouncedMarkdown}
               theme={(theme || "light") as "light" | "dark"}
             />
           </Panel>

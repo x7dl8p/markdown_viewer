@@ -1,7 +1,7 @@
 // MarkdownToolbar.tsx
 "use client";
 
-import { FC } from "react";
+import { FC, memo, useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +35,7 @@ interface MarkdownToolbarProps {
 }
 
 const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMarkdown }) => {
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     try {
       localStorage.setItem('awsm-md-content', markdown);
       localStorage.setItem('awsm-md-saved-at', new Date().toISOString());
@@ -50,9 +50,9 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         variant: 'destructive',
       });
     }
-  };
+  }, [markdown]);
 
-  const handleDiscard = () => {
+  const handleDiscard = useCallback(() => {
     try {
       localStorage.removeItem('awsm-md-content');
       localStorage.removeItem('awsm-md-saved-at');
@@ -68,7 +68,7 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         variant: 'destructive',
       });
     }
-  };
+  }, [setMarkdown]);
 
   return (
     <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm flex items-center gap-2 flex-wrap justify-between">
@@ -128,6 +128,37 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         <CheckSquare className="h-4 w-4" />
       </Button>
 
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <AlertTriangle className="h-4 w-4 mr-1" /> Admonitions{" "}
+            <ChevronDown className="ml-1 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onInsert("!!! note Note Title\n    This is a note admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#cba6f7] mr-2"></span>
+            Note
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! info Info Title\n    This is an info admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#74c7ec] mr-2"></span>
+            Info
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! warning Warning Title\n    This is a warning admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#fab387] mr-2"></span>
+            Warning
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! danger Danger Title\n    This is a danger admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#eba0ac] mr-2"></span>
+            Danger
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onInsert("!!! greentext Greentext Title\n    This is a greentext admonition.\n\n")}>
+            <span className="w-2 h-2 rounded-full bg-[#a6e3a1] mr-2"></span>
+            Greentext
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <div className="flex-1" />
 
       <Button variant="outline" size="sm" onClick={handleSave} className="gap-1">
@@ -142,4 +173,4 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
   );
 };
 
-export default MarkdownToolbar;
+export default memo(MarkdownToolbar);
