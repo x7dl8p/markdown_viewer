@@ -24,6 +24,7 @@ import {
   RotateCcw,
   CheckSquare,
   AlertTriangle,
+  Highlighter,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { DEFAULT_MARKDOWN } from "@/content/defaultMarkdown";
@@ -71,12 +72,15 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
   }, [setMarkdown]);
 
   return (
-    <div className="bg-muted/40 px-2 py-1.5 border-b font-medium text-sm flex items-center gap-1 overflow-x-auto scrollbar-hide">
+    <div className="bg-muted/40 px-2 py-1.5 border-b font-medium text-sm flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("**bold text**", true)}>
         <Bold className="h-3.5 w-3.5" />
       </Button>
       <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("*italic text*", true)}>
         <Italic className="h-3.5 w-3.5" />
+      </Button>
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("==", true)}>
+        <Highlighter className="h-3.5 w-3.5" />
       </Button>
       <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("```\n code here \n```")}>
         <Code className="h-3.5 w-3.5" />

@@ -92,6 +92,17 @@ body {
     @apply bg-background text-foreground;
   }
 
+  /* Yellow text selection */
+  ::selection {
+    background-color: #ffe100;
+    color: #000;
+  }
+
+  ::-moz-selection {
+    background-color: #ffe100;
+    color: #000;
+  }
+
   ::-webkit-scrollbar {
     width: 6px;
   }

@@ -1,8 +1,8 @@
 "use client";
 
-import { FC, memo, useState, useRef, useCallback } from "react";
+import { FC, memo, useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit } from "lucide-react";
+import { Eye, Edit, Highlighter } from "lucide-react";
 import MarkdownPreview from "@/components/MarkdownPreview";
 import MarkdownToolbar from "@/components/MarkdownToolbar";
 
@@ -21,6 +21,8 @@ const MobileLayout: FC<MobileLayoutProps> = ({
 }) => {
   const [view, setView] = useState<"edit" | "preview">("preview");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showHighlightBtn, setShowHighlightBtn] = useState(false);
+  const [highlightBtnPos, setHighlightBtnPos] = useState({ top: 0, left: 0 });
 
   const insertText = useCallback((text: string, wrap: boolean = false) => {
     const textarea = textareaRef.current;
@@ -55,6 +57,65 @@ const MobileLayout: FC<MobileLayoutProps> = ({
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMarkdown(e.target.value);
   }, [setMarkdown]);
+
+  const handleTextSelect = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    if (start !== end && view === "edit") {
+      // Text is selected
+      const rect = textarea.getBoundingClientRect();
+      const textBeforeSelection = markdown.slice(0, start);
+      const lines = textBeforeSelection.split('\n').length;
+
+      // Position the button near the selection
+      setHighlightBtnPos({
+        top: rect.top + (lines * 20) - textarea.scrollTop + 40,
+        left: rect.left + rect.width / 2 - 30,
+      });
+      setShowHighlightBtn(true);
+    } else {
+      setShowHighlightBtn(false);
+    }
+  }, [markdown, view]);
+
+  const handleHighlight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    if (start !== end) {
+      const selectedText = markdown.slice(start, end);
+      const newText = markdown.slice(0, start) + "==" + selectedText + "==" + markdown.slice(end);
+      setMarkdown(newText);
+
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + 2 + selectedText.length + 2, start + 2 + selectedText.length + 2);
+      }, 0);
+    }
+    setShowHighlightBtn(false);
+  }, [markdown, setMarkdown]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.addEventListener('mouseup', handleTextSelect);
+    textarea.addEventListener('touchend', handleTextSelect);
+    textarea.addEventListener('keyup', handleTextSelect);
+
+    return () => {
+      textarea.removeEventListener('mouseup', handleTextSelect);
+      textarea.removeEventListener('touchend', handleTextSelect);
+      textarea.removeEventListener('keyup', handleTextSelect);
+    };
+  }, [handleTextSelect]);
 
   return (
     <div className="h-full flex flex-col relative">
@@ -92,6 +153,21 @@ const MobileLayout: FC<MobileLayoutProps> = ({
           <MarkdownPreview markdown={debouncedMarkdown} theme={theme} />
         )}
       </div>
+
+      {/* Floating highlight button when text is selected */}
+      {showHighlightBtn && view === "edit" && (
+        <Button
+          size="sm"
+          onClick={handleHighlight}
+          className="fixed z-50 shadow-lg rounded-full h-9 w-9 p-0"
+          style={{
+            top: `${highlightBtnPos.top}px`,
+            left: `${highlightBtnPos.left}px`,
+          }}
+        >
+          <Highlighter className="h-4 w-4" />
+        </Button>
+      )}
 
       {/* Toolbar - sticky at the bottom above footer, only in edit mode */}
       {view === "edit" && (
