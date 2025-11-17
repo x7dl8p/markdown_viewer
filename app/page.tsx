@@ -6,10 +6,9 @@ import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import MarkdownEditor from "@/components/MarkdownEditor";
-import MarkdownPreview from "@/components/MarkdownPreview";
+import MobileLayout from "@/components/MobileLayout";
+import DesktopLayout from "@/components/DesktopLayout";
 import Footer from "@/components/footer";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { preprocessMarkdown, getMarkdownComponents } from "@/lib/markdownParser";
 
 export default function MarkdownViewer() {
@@ -207,22 +206,22 @@ export default function MarkdownViewer() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <main className="flex-1 p-4 overflow-hidden">
-        <PanelGroup direction="horizontal" className="h-full">
-          <Panel
-            defaultSize={60}
-            minSize={20}
-            className="rounded-md border shadow-sm overflow-hidden mx-2"
-          >
-            <MarkdownEditor markdown={markdown} setMarkdown={setMarkdown} />
-          </Panel>
-          <PanelResizeHandle className="w-1 bg-border hover:bg-muted-foreground transition-colors" />
-          <Panel defaultSize={40} minSize={20} className="overflow-auto mx-2">
-            <MarkdownPreview
-              markdown={debouncedMarkdown}
-              theme={(theme || "light") as "light" | "dark"}
-            />
-          </Panel>
-        </PanelGroup>
+        <div className="hidden lg:block h-full">
+          <DesktopLayout
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            debouncedMarkdown={debouncedMarkdown}
+            theme={(theme || "light") as "light" | "dark"}
+          />
+        </div>
+        <div className="block lg:hidden h-full">
+          <MobileLayout
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            debouncedMarkdown={debouncedMarkdown}
+            theme={(theme || "light") as "light" | "dark"}
+          />
+        </div>
       </main>
       <Footer
         theme={(theme || "light") as "light" | "dark"}

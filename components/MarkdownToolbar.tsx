@@ -71,38 +71,22 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
   }, [setMarkdown]);
 
   return (
-    <div className="bg-muted/40 px-4 py-2 border-b font-medium text-sm flex items-center gap-2 flex-wrap justify-between">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            Headings <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => onInsert("# heading1\n")}>H1</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("## heading2\n")}>H2</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("### heading3\n")}>H3</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("#### heading4\n")}>H4</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("##### heading5\n")}>H5</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onInsert("###### heading6\n")}>H6</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Button variant="outline" size="sm" onClick={() => onInsert("**bold text**", true)}>
-        <Bold className="h-4 w-4" />
+    <div className="bg-muted/40 px-2 py-1.5 border-b font-medium text-sm flex items-center gap-1 overflow-x-auto scrollbar-hide">
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("**bold text**", true)}>
+        <Bold className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("*italic text*", true)}>
-        <Italic className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("*italic text*", true)}>
+        <Italic className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("```\n code here \n```")}>
-        <Code className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("```\n code here \n```")}>
+        <Code className="h-3.5 w-3.5" />
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <List className="h-4 w-4 mr-1" /> Lists{" "}
-            <ChevronDown className="ml-1 h-4 w-4" />
+          <Button variant="outline" className="h-7 px-2 text-xs shrink-0">
+            <List className="h-3.5 w-3.5 mr-1" />
+            <ChevronDown className="h-3.5 w-3.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -115,24 +99,24 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button variant="outline" size="sm" onClick={() => onInsert("> Quote text\n")}>
-        <Quote className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("> Quote text\n")}>
+        <Quote className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("\n\n---\n")}>
-        <Minus className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("\n\n---\n")}>
+        <Minus className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
-        <Link className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("[Link embedded Text](https://example.com)\n")}>
+        <Link className="h-3.5 w-3.5" />
       </Button>
-      <Button variant="outline" size="sm" onClick={() => onInsert("- [ ] Task item\n")}>
-        <CheckSquare className="h-4 w-4" />
+      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0" onClick={() => onInsert("- [ ] Task item\n")}>
+        <CheckSquare className="h-3.5 w-3.5" />
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <AlertTriangle className="h-4 w-4 mr-1" /> Admonitions{" "}
-            <ChevronDown className="ml-1 h-4 w-4" />
+          <Button variant="outline" className="h-7 px-2 text-xs shrink-0">
+            <AlertTriangle className="h-3.5 w-3.5 mr-1" />
+            <ChevronDown className="h-3.5 w-3.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -159,16 +143,18 @@ const MarkdownToolbar: FC<MarkdownToolbarProps> = ({ onInsert, markdown, setMark
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="flex-1" />
+      <div className="flex-1 min-w-2" />
 
-      <Button variant="outline" size="sm" onClick={handleSave} className="gap-1">
-        <Save className="h-4 w-4" />
-        Save
-      </Button>
-      <Button variant="outline" size="sm" onClick={handleDiscard} className="gap-1">
-        <RotateCcw className="h-4 w-4" />
-        Reset
-      </Button>
+      <div className="flex items-center border rounded-md overflow-hidden shrink-0">
+        <Button variant="ghost" className="h-7 px-2 text-xs gap-1 rounded-none border-r hover:bg-accent" onClick={handleSave}>
+          <Save className="h-3.5 w-3.5" />
+          Save
+        </Button>
+        <Button variant="ghost" className="h-7 px-2 text-xs gap-1 rounded-none hover:bg-accent" onClick={handleDiscard}>
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      </div>
     </div>
   );
 };
